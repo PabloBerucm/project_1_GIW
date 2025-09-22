@@ -39,7 +39,12 @@ def es_cuadrada(matriz):
 
 
 def es_simetrica(matriz):
-    ...
+    for i in matriz:
+        for j in matriz:
+            if matriz[i][j] != matriz [j][i]:
+                return False
+    return True
+
 
 
 def multiplica_escalar(matriz, k):
