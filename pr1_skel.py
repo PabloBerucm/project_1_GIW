@@ -86,7 +86,29 @@ def suma(matriz1, matriz2):
 
 # Ejercicio 2
 def validar(grafo):
-    ...
+    #si no encontramos las claves nodos o aristas el grafo no será válido
+    if "nodos" not in grafo: return False
+    if "aristas" not in grafo: return False
+
+    #en nodos guardaremos un conjunto de los nodos para tener un acceso rápido
+    nodos = set(grafo["nodos"])
+    #en aristas guardaremos el diccionario de todas las aristas de cada vértice
+    aristas = grafo["aristas"]
+    
+    #comprobamos si los el conjunto de nodos coincide con el conjunto de las claves de las aristas
+    nodos_aristas = set(aristas.keys())
+    if nodos_aristas != nodos: return False
+
+    for origen, destinos in aristas.items():
+        for destino in destinos:
+            #si para cada arista de un nodo va a un nodo inexistente en la lista de nodos no será válido
+            if destino not in nodos: return False
+
+        #como en los conjuntos se eliminan los duplicados confirmamos que no hay aristas repetidas
+        if len(destinos) != len(set(destinos)): return False
+
+    return True
+
 
 def grado_entrada(grafo, nodo):
     ...
@@ -123,3 +145,14 @@ print(a)
 b = suma(matriz2, matriz3)
 
 print(b)
+
+g = {"nodos": ["a", "b", "c", "d"],
+  "aristas": {"a": ["a", "b", "c"],
+            "b": ["a", "c"],
+            "c": ["c"],
+            "d": ["c"]
+            }
+    }
+
+
+if (validar(g)):print("grafo ok ")
