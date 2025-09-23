@@ -62,7 +62,26 @@ def multiplica_escalar(matriz, k):
     return matriz_aux
 
 def suma(matriz1, matriz2):
-    ...
+    #Comprobamos que tengan las mismas dimensiones
+    dim1 = dimension(matriz1)
+    dim2 = dimension(matriz2)
+    if(dim1 != dim2): return None
+
+    #creamos una nueva matriz para devolver
+    matriz_aux = []
+    # Recorremos las filas por índice de fila
+    for i in range(len(matriz1)):
+        nueva_fila = []
+
+        # Recorremos las columnas por índice de columna
+        for j in range(len(matriz1[i])):
+            #para poder acceder a los elementos de las matrices
+            nuevo_numero = matriz1[i][j] + matriz2[i][j]
+            nueva_fila.append(nuevo_numero)
+        #se añade la fila con cada elemento sumado a la matriz creada
+        matriz_aux.append(nueva_fila)
+
+    return matriz_aux
 
 
 # Ejercicio 2
@@ -87,6 +106,11 @@ matriz2 = [[1, 0, 1],
            [1, 2, 2]
         ]
 
+matriz3 = [[1, 0, 1], 
+           [0, 3, 2], 
+           [1, 2, 2]
+        ]
+
 print(dimension(matriz1))
 print(dimension(matriz2))
 
@@ -95,3 +119,7 @@ print('es cuadrada' if es_cuadrada(matriz1) else 'no es cuadrada')
 a = multiplica_escalar(matriz1, 10)
 
 print(a)
+
+b = suma(matriz2, matriz3)
+
+print(b)
