@@ -48,7 +48,18 @@ def es_simetrica(matriz):
 
 
 def multiplica_escalar(matriz, k):
-    ...
+    #se crea la matriz auxiliar para devolver
+    matriz_aux = []
+    #se recorren todos los elementos de la matriz de la llamada
+    for fila in matriz:
+        nueva_fila = []
+        for x in fila:
+            #multiplicamos el número por k y lo metemos en la fila
+            nuevo_numero = x*k
+            nueva_fila.append(nuevo_numero)
+        #metemos la fila en la matriz auxiliar y repetimos hasta acabar con todas las filas
+        matriz_aux.append(nueva_fila)
+    return matriz_aux
 
 def suma(matriz1, matriz2):
     ...
@@ -80,3 +91,7 @@ print(dimension(matriz1))
 print(dimension(matriz2))
 
 print('es cuadrada' if es_cuadrada(matriz1) else 'no es cuadrada')
+
+a = multiplica_escalar(matriz1, 10)
+
+print(a)
