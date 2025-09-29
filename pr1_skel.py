@@ -109,13 +109,34 @@ def validar(grafo):
 
     return True
 
-
 def grado_entrada(grafo, nodo):
-    ...
+    if not validar(grafo) or nodo not in grafo["nodos"]: 
+        return -1 
+    contador = 0 
+    for destinos in grafo["aristas"].values(): 
+        contador += destinos.count(nodo)
+    return contador
+
 
 def distancia(grafo, nodo):
-    ...
-   
+    if not validar(grafo) or nodo not in grafo["nodos"]:
+        return None
+
+    dist = {n: -1 for n in grafo["nodos"]}
+    dist[nodo] = 0
+
+    # lista de nodos que ya sabemos la distancia
+    procesados = [nodo]
+
+    for actual in procesados:
+        for vecino in grafo["aristas"][actual]:
+            if dist[vecino] == -1:
+                dist[vecino] = dist[actual] + 1
+                procesados.append(vecino)
+
+    return dist
+
+    return dist 
 
 #a partir de aquí está el código para probar las funciones
 matriz1 = [[1, 0, 2, 5], 
@@ -156,3 +177,5 @@ g = {"nodos": ["a", "b", "c", "d"],
 
 
 if (validar(g)):print("grafo ok ")
+print(grado_entrada(g, "a"))
+print(distancia(g, "a"))
