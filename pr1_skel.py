@@ -61,57 +61,62 @@ def multiplica_escalar(matriz, k):
         matriz_aux.append(nueva_fila)
     return matriz_aux
 
-def suma(matriz1, matriz2):
-    #Comprobamos que tengan las mismas dimensiones
-    dim1 = dimension(matriz1)
-    dim2 = dimension(matriz2)
-    if(dim1 != dim2): return None
 
-    #creamos una nueva matriz para devolver
-    matriz_aux = []
-    # Recorremos las filas por índice de fila
-    for i in range(len(matriz1)):
+#cambio el nombre de las variables para que no de fallo en pylint
+def suma(m1, m2):
+    matriz_resultado = []
+    
+    # iteramos sobre las filas de las matrices
+    for fila1, fila2 in zip(m1, m2):
         nueva_fila = []
+        
+        # ahora iteramos sobre los elementos de las filas de ambas matrices conjuntamente
+        for elemento1, elemento2 in zip(fila1, fila2):
+            suma_elementos = elemento1 + elemento2
+            #insertamos la suma en la fila de la matriz resultado
+            nueva_fila.append(suma_elementos)
+        #insertamos la fila en matriz resultado
+        matriz_resultado.append(nueva_fila)
+        
+    return matriz_resultado
 
-        # Recorremos las columnas por índice de columna
-        for j in range(len(matriz1[i])):
-            #para poder acceder a los elementos de las matrices
-            nuevo_numero = matriz1[i][j] + matriz2[i][j]
-            nueva_fila.append(nuevo_numero)
-        #se añade la fila con cada elemento sumado a la matriz creada
-        matriz_aux.append(nueva_fila)
-
-    return matriz_aux
 
 
 # Ejercicio 2
 def validar(grafo):
     #si no encontramos las claves nodos o aristas el grafo no será válido
-    if "nodos" not in grafo: return False
-    if "aristas" not in grafo: return False
+    if "nodos" not in grafo or "aristas" not in grafo: 
+        return False
 
     #en nodos guardaremos un conjunto de los nodos para tener un acceso rápido
     nodos = set(grafo["nodos"])
     #en aristas guardaremos el diccionario de todas las aristas de cada vértice
     aristas = grafo["aristas"]
     
-    #comprobamos si los el conjunto de nodos coincide con el conjunto de las claves de las aristas
+    #comprobamos si los el conjunto de nodos coincide con el conjunto de las claves de las aristas, de no coincidir devolvemos False
     nodos_aristas = set(aristas.keys())
-    if nodos_aristas != nodos: return False
+    if nodos_aristas != nodos: 
+        return False
 
-    for origen, destinos in aristas.items():
+    #ahora iteramos sobre los nodos de "aristas"
+    for destinos in aristas.values():
+        #e iteramos sobre las aristas de cada nodo
         for destino in destinos:
             #si para cada arista de un nodo va a un nodo inexistente en la lista de nodos no será válido
-            if destino not in nodos: return False
+            if destino not in nodos: 
+                return False
 
         #como en los conjuntos se eliminan los duplicados confirmamos que no hay aristas repetidas
-        if len(destinos) != len(set(destinos)): return False
+        if len(destinos) != len(set(destinos)): 
+            return False
 
     return True
 
 def grado_entrada(grafo, nodo):
+    #el grafo debe ser válido e incluir el nodo en él
     if not validar(grafo) or nodo not in grafo["nodos"]: 
         return -1 
+    
     contador = 0 
     for destinos in grafo["aristas"].values(): 
         contador += destinos.count(nodo)
@@ -119,6 +124,7 @@ def grado_entrada(grafo, nodo):
 
 
 def distancia(grafo, nodo):
+    #el grafo debe ser válido e incluir el nodo en él
     if not validar(grafo) or nodo not in grafo["nodos"]:
         return None
 
@@ -136,7 +142,7 @@ def distancia(grafo, nodo):
 
     return dist
 
-    return dist 
+
 
 #a partir de aquí está el código para probar las funciones
 matriz1 = [[1, 0, 2, 5], 
