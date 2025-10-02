@@ -4,7 +4,7 @@ TODO: rellenar
 Asignatura: GIW
 Práctica 1
 Grupo: XXXXXXX
-Autores: XXXXXX 
+Autores: Pablo Bernal Calleja
 
 Declaramos que esta solución es fruto exclusivamente de nuestro trabajo personal. No hemos
 sido ayudados por ninguna otra persona o sistema automático ni hemos obtenido la solución
@@ -133,8 +133,8 @@ def distancia(grafo, nodo):
 
     # lista de nodos que ya sabemos la distancia
     procesados = [nodo]
-
-    for actual in procesados:
+    #como se está actualizando la lista sobre la que vamos a iterar lo haremos sobre una copia de la misma usando [:]
+    for actual in procesados[:]:
         for vecino in grafo["aristas"][actual]:
             if dist[vecino] == -1:
                 dist[vecino] = dist[actual] + 1
