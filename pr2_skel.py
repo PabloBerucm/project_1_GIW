@@ -78,10 +78,10 @@ def busqueda_distancia(monumentos, direccion, distancia):
 #pruebas del código
 
 #leer fichero csv -> indicar ruta propia del fichero csv para su lectura
-lista_accidentes = lee_fichero_accidentes("D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_2/AccidentesBicicletas_2021.csv")
+mi_lista_accidentes = lee_fichero_accidentes("D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_2/AccidentesBicicletas_2021.csv")
 #compruebo la primera lectura del fichero imprimiendo la línea 0
-print(lista_accidentes[0])
+print(mi_lista_accidentes[0])
 
 #comprobamos la segunda función
-accidentes_distrito_tipo = accidentes_por_distrito_tipo(lista_accidentes)
+accidentes_distrito_tipo = accidentes_por_distrito_tipo(mi_lista_accidentes)
 print(accidentes_distrito_tipo)
