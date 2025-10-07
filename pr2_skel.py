@@ -34,7 +34,25 @@ def lee_fichero_accidentes(ruta):
     return lista_accidentes
 
 def accidentes_por_distrito_tipo(datos):
-    ...
+    #función que devuelve un diccionario pasando el de lee_fichero_accidentes
+    #devolviendo otro diccionario que contée los accidentes por distrito
+    dicc_sol = {}
+
+    for item in datos:
+        #estandarizamos el texto a la salida buscada por el ejercicio
+        distrito = item['distrito'].strip().upper()
+        tipo = item['tipo_accidente'].strip()
+
+        clave = (distrito, tipo)
+
+        #si ya existe la clave en nuestro diccionario añadiremos un accidente
+        #como valor, de lo contrario, lo añadiremos al diccionario con un 1
+        if clave in dicc_sol:
+            dicc_sol[clave] += 1
+        else:
+            dicc_sol[clave] = 1
+    #devolveremos el diccionario generado
+    return dicc_sol
 
 def dias_mas_accidentes(datos):
     ...
@@ -58,7 +76,12 @@ def busqueda_distancia(monumentos, direccion, distancia):
 
 
 #pruebas del código
+
 #leer fichero csv -> indicar ruta propia del fichero csv para su lectura
 lista_accidentes = lee_fichero_accidentes("D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_2/AccidentesBicicletas_2021.csv")
 #compruebo la primera lectura del fichero imprimiendo la línea 0
 print(lista_accidentes[0])
+
+#comprobamos la segunda función
+accidentes_distrito_tipo = accidentes_por_distrito_tipo(lista_accidentes)
+print(accidentes_distrito_tipo)
