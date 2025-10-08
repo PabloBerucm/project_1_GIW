@@ -55,10 +55,34 @@ def accidentes_por_distrito_tipo(datos):
     return dicc_sol
 
 def dias_mas_accidentes(datos):
-    ...
+    dicc_fechas = {}
+
+    for item in datos:
+        fecha = item['fecha'].strip()
+        dicc_fechas[fecha] = dicc_fechas.get(fecha, 0) + 1
+
+    # máximo número de accidentes en un día
+    max_acc = max(dicc_fechas.values())
+
+    # devolvemos todas las fechas con ese número de accidentes
+    dias_maximos = [fecha for fecha, n in dicc_fechas.items() if n == max_acc]
+
+    return dias_maximos
 
 def puntos_negros_distrito(datos, distrito, k):
-    ...
+    distrito = distrito.strip().upper()
+    conteo = {}
+
+    for item in datos:
+        if item['distrito'].strip().upper() == distrito:
+            punto = item.get('localizacion', item.get('direccion', '')).strip()
+            conteo[punto] = conteo.get(punto, 0) + 1
+
+    # ordenamos los puntos por número de accidentes (descendente)
+    puntos_ordenados = sorted(conteo.items(), key=lambda x: x[1], reverse=True)
+
+    # devolvemos los k primeros puntos
+    return puntos_ordenados[:k]
 
 
 #### Formato JSON
@@ -85,3 +109,6 @@ print(mi_lista_accidentes[0])
 #comprobamos la segunda función
 accidentes_distrito_tipo = accidentes_por_distrito_tipo(mi_lista_accidentes)
 print(accidentes_distrito_tipo)
+
+print(dias_mas_accidentes(mi_lista_accidentes))
+print(puntos_negros_distrito(mi_lista_accidentes, "CENTRO", 5))
