@@ -86,11 +86,41 @@ def puntos_negros_distrito(datos, distrito, k):
 
 
 #### Formato JSON
+
+#Ejercicio 1 JSON 
+import json
 def leer_monumentos(ruta):
-    ...
+    """
+    Lee el fichero JSON que contiene la información de los monumentos de Madrid 
+    y devuelve una lista de diccionarios, uno por cada monumento
+
+    """
+    with open(ruta, "r", encoding="utf-8") as fichero: #abrimos fichero en modo lectura con codificación UTF-8, con el with garantizamos que se cierre el archivo al terminar
+        datos = json.load(fichero)  #lee contenido y convierte en estructura de python 
+    #la lista de monumentos está dentro de la clave @graph
+    return datos["@graph"]
 
 def codigos_postales(monumentos):
-    ...
+    """
+    devuelve lista de parejas con el numero total de documentos que hay en cada codigo postal 
+
+    """
+    contador = {} #creamos contador para mantener el orden 
+
+    for m in monumentos: 
+        #extraemos codigo postal, en el caso de que no exista, usamos cadena vacia 
+        codigo_postal = m.get("address", {}).get("postal-code", "")
+        contador[codigo_postal] = contador.get(codigo_postal, 0) +1
+
+    #convertimos el contador a la lista de tuplas 
+    lista_codigos = list(contador.items())
+
+    #ordenamos primero por numero de monumentos
+    lista_codigos.sort(key=lambda x: x[1], reverse=True)
+
+    return lista_codigos
+
+
 
 def busqueda_palabras_clave(monumentos, palabras):
     ...
@@ -100,6 +130,7 @@ def busqueda_distancia(monumentos, direccion, distancia):
 
 
 #pruebas del código
+
 
 #leer fichero csv -> indicar ruta propia del fichero csv para su lectura
 mi_lista_accidentes = lee_fichero_accidentes("D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_2/AccidentesBicicletas_2021.csv")
@@ -112,3 +143,17 @@ print(accidentes_distrito_tipo)
 
 print(dias_mas_accidentes(mi_lista_accidentes))
 print(puntos_negros_distrito(mi_lista_accidentes, "CENTRO", 5))
+
+
+#pruebas json 
+#1
+monumentos = leer_monumentos("300356-0-monumentos-ciudad-madrid.json")
+print(len(monumentos))  #vemos cuantos hay 
+print(monumentos[0].keys()) #vemos claves del primer monumento 
+print(monumentos[0]["title"]) #vemos el título del primer monumento 
+
+#2 
+print(type(monumentos), len(monumentos), type(monumentos[0]))
+res = codigos_postales(monumentos)
+print(res[:10])
+
