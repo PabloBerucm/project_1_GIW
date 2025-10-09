@@ -60,7 +60,7 @@ def nombres_restaurantes(filename):
     parser = xml.sax.make_parser()
     parser.setContentHandler(h)
     parser.parse(filename)
-
+    #usamos el método sorted para transformar el conjunto en una lista ordenada
     return sorted(h.nombres)
 
 def subcategorias(filename):
