@@ -18,25 +18,37 @@ import xml.sax
 import html
 
 class ManejoRestaurantes(xml.sax.ContentHandler):
+    """
+    Creamos una clase contenthandler cuyo constructor tendrá 3 atributos, el texto para almacenar
+    lo leído por invocaciones consecutivas, el en_name para saber si estamos en el atributo name y
+    coger el nombre y un conjunto nombres donde iremos guardando los nombres de restaurantes
+    """
     def __init__(self):
         self.texto = ""
         self.en_name = False
         self.nombres = set()
 
     def startElement(self, name, attrs):
+        #cuando detecta la etiqueta element se pone en true nuestro en_name
         if name == "name":
             self.en_name = True
+        #borramos lo que hubiese leído en el registro para coger solo el nombre
         self.texto = ""
 
     def characters(self, content):
+        #cuando está leyendo el contenido de la etiqueta y nos encontramos en en_name, y lo guardamos en el texto
         if self.en_name:
             self.texto += content
 
     def endElement(self, name):
+        #cuando terminamos de ver un elemento si la etiqueta era name:
         if name == "name":
+            #usamos el html.unescape() por el texto escapado html y el strip para eliminar espacios al principio y al final
             nombre = html.unescape(self.texto.strip())
+            #si existe el nombre lo añadimos a nuestro conjunto
             if nombre:
                 self.nombres.add(nombre)
+            #y como terminamos la etiqueta de name ponemos la flag a False
             self.en_name = False
 
 
