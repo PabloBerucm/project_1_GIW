@@ -164,9 +164,72 @@ def busqueda_palabras_clave(monumentos, palabras):
 
     return resultado
 
+# Ejercicio 4 JSON
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
 
 def busqueda_distancia(monumentos, direccion, distancia):
-    ...
+    """
+    Devuelve una lista de ternas (título, id, distancia en km) de los monumentos
+    que se encuentran a menos de 'distancia' km desde la 'direccion' pasada.
+    La lista está ordenada de más cercano a lejano, preservando el orden original
+    en caso de empate en distancia. Ignora monumentos sin información de localización.
+
+    Parámetros:
+        monumentos: lista de diccionarios (cada monumento)
+        direccion: cadena con la dirección de referencia
+        distancia: número (en km) máximo para filtrar
+
+    Retorno:
+        list[tuple[str, str, float]]
+    """
+    # Creamos el geocodificador con el user_agent requerido
+    geolocator = Nominatim(user_agent="GIW_pr2")
+    
+    # Obtenemos lat/lon de la dirección; si falla, devolvemos lista vacía
+    location = geolocator.geocode(direccion)
+    if not location:
+        return []
+    
+    # Punto de referencia: (latitud, longitud) -- orden importante para geodesic
+    ref_point = (location.latitude, location.longitude)
+    
+    # Lista de candidatos: recolectamos en orden de aparición para preservar en empates
+    candidatos = []
+    
+    for mon in monumentos:
+        # Extraemos título e ID de forma segura
+        titulo = mon.get("title", "")
+        mon_id = mon.get("id", "")
+        
+        if not titulo or not mon_id:  # Saltamos si faltan datos básicos
+            continue
+        
+        # Extraemos lat/lon del monumento de forma anidada y segura
+        location_mon = mon.get("location", {})
+        lat = location_mon.get("latitude")
+        lon = location_mon.get("longitude")
+        
+        # Ignoramos si no hay lat/lon válida (como indica el enunciado)
+        if lat is None or lon is None:
+            continue
+        
+        try:
+            # Convertimos a float y calculamos distancia con geodesic
+            mon_point = (float(lat), float(lon))
+            dist_km = geodesic(ref_point, mon_point).km
+            
+            # Si está dentro del radio, añadimos la terna
+            if dist_km < distancia:
+                candidatos.append((titulo, mon_id, dist_km))
+        except (ValueError, TypeError):
+            continue
+    
+    # Ordenamos por distancia ascendente: sorted() es estable, preserva orden original en empates
+    candidatos.sort(key=lambda x: x[2])
+    
+    return candidatos
+
     
 
 # =========================
@@ -225,3 +288,5 @@ palabras_4 = ["  jardín  ", "", "botánico"]
 res_busq_4 = busqueda_palabras_clave(monumentos, palabras_4)
 print("E3-4 | claves =", palabras_4, "| encontrados:", len(res_busq_4))
 print(sorted(list(res_busq_4))[:10])
+
+
