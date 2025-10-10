@@ -121,16 +121,57 @@ def codigos_postales(monumentos):
     return lista_codigos
 
 
-
+# Ejercicio 3 JSON
 def busqueda_palabras_clave(monumentos, palabras):
-    ...
+    """
+    Devuelve un conjunto de parejas (titulo, distrito_url) con los monumentos
+    cuyo título o descripción contienen TODAS las palabras clave (como subcadenas,
+    sin distinguir mayúsculas/minúsculas). Si no existe district -> '@id',
+    el distrito será ''.
+
+    Parámetros:
+        monumentos: lista de diccionarios (cada monumento)
+        palabras: lista de cadenas con palabras clave
+
+    Retorno:
+        set[tuple[str, str]]
+    """
+    # Normalizamos y filtramos palabras vacías o no cadena
+    claves = [p.strip().casefold() for p in palabras if isinstance(p, str) and p.strip()]
+    resultado = set()
+
+    if not claves:
+        return resultado
+
+    for m in monumentos:
+        # Extraer título y descripción (si faltan, usar cadena vacía)
+        titulo = str(m.get("title", ""))
+        desc = str(m.get("organization", {}).get("organization-desc", ""))
+
+        # Texto combinado en minúsculas "robustas" (casefold maneja Unicode)
+        texto = (titulo + " " + desc).casefold()
+
+        # Deben aparecer TODAS las palabras como subcadenas
+        if all(clave in texto for clave in claves):
+            # district -> '@id' o '' si no existe
+            district_url = ""
+            addr = m.get("address", {})
+            dist_obj = addr.get("district", {})
+            if isinstance(dist_obj, dict):
+                district_url = dist_obj.get("@id", "") or ""
+
+            resultado.add((titulo, district_url))
+
+    return resultado
+
 
 def busqueda_distancia(monumentos, direccion, distancia):
     ...
+    
 
-
-#pruebas del código
-
+# =========================
+# PRUEBAS DEL CÓDIGO
+# =========================
 
 #leer fichero csv -> indicar ruta propia del fichero csv para su lectura
 mi_lista_accidentes = lee_fichero_accidentes("D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_2/AccidentesBicicletas_2021.csv")
@@ -157,3 +198,30 @@ print(type(monumentos), len(monumentos), type(monumentos[0]))
 res = codigos_postales(monumentos)
 print(res[:10])
 
+#3 (Ejercicio 3) - PRUEBAS JSON
+#   Probamos con distintas combinaciones de palabras clave.
+#   Mostramos tamaño del resultado y algunas coincidencias ordenadas por título para reproducibilidad.
+
+# 3.a) Búsqueda de una palabra suelta (ej.: "museo")
+palabras_1 = ["museo"]
+res_busq_1 = busqueda_palabras_clave(monumentos, palabras_1)
+print("E3-1 | claves =", palabras_1, "| encontrados:", len(res_busq_1))
+print(sorted(list(res_busq_1))[:10])  # primeras 10 parejas (titulo, distrito_url)
+
+# 3.b) Dos palabras que deben aparecer ambas (ej.: "plaza" y "reina")
+palabras_2 = ["plaza", "reina"]
+res_busq_2 = busqueda_palabras_clave(monumentos, palabras_2)
+print("E3-2 | claves =", palabras_2, "| encontrados:", len(res_busq_2))
+print(sorted(list(res_busq_2))[:10])
+
+# 3.c) Palabras con mayúsculas/minúsculas mezcladas (comprobación case-insensitive)
+palabras_3 = ["PuEnTe", "HISTÓRICO"]
+res_busq_3 = busqueda_palabras_clave(monumentos, palabras_3)
+print("E3-3 | claves =", palabras_3, "| encontrados:", len(res_busq_3))
+print(sorted(list(res_busq_3))[:10])
+
+# 3.d) Palabras con espacios y entradas vacías (se ignoran vacíos)
+palabras_4 = ["  jardín  ", "", "botánico"]
+res_busq_4 = busqueda_palabras_clave(monumentos, palabras_4)
+print("E3-4 | claves =", palabras_4, "| encontrados:", len(res_busq_4))
+print(sorted(list(res_busq_4))[:10])
