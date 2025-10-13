@@ -3,8 +3,12 @@ TODO: rellenar
 
 Asignatura: GIW
 Práctica 3
-Grupo: XXXXXXX
-Autores: XXXXXX 
+Grupo: 3
+Autores: Pablo Bernal Calleja
+         Fernando Guzmán Muñoz
+         Álvaro González-Barros Medina
+         Guillermo Guzmán González Ortíz
+         Nicolás López-Chaves Pérez 
 
 Declaramos que esta solución es fruto exclusivamente de nuestro trabajo personal. No hemos
 sido ayudados por ninguna otra persona o sistema automático ni hemos obtenido la solución
