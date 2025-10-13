@@ -63,8 +63,52 @@ def nombres_restaurantes(filename):
     #usamos el método sorted para transformar el conjunto en una lista ordenada
     return sorted(h.nombres)
 
+
+class SubcategoriaHandler(xml.sax.ContentHandler):
+
+    def __init__(self):
+        super().__init__()
+        self.current_categoria = None
+        self.current_subcategoria = None
+        self.subcats = set()
+        self.en_item = False
+        self.attr_name = None
+        self.buffer = ""
+
+    def startElement(self, name, attrs):
+        if name == "item":
+            self.en_item = True
+            self.attr_name = attrs.get("name")
+            self.buffer = ""
+
+    def characters(self, content):
+        if self.en_item:
+            self.buffer += content
+
+    def endElement(self, name):
+        if name == "item" and self.en_item:
+            text = html.unescape(self.buffer.strip())
+            if self.attr_name == "Categoria":
+                self.current_categoria = text
+            elif self.attr_name == "SubCategoria" and self.current_categoria:
+                cadena = f"{self.current_categoria} > {text}"
+                self.subcats.add(cadena)
+            self.en_item = False
+            self.attr_name = None
+
+        elif name == "categoria":
+            self.current_categoria = None
+
+
 def subcategorias(filename):
-    ...
+    """
+    Devuelve un conjunto con todas las subcategorías del XML en formato 'Categoria > SubCategoria'.
+    """
+    handler = SubcategoriaHandler()
+    parser = xml.sax.make_parser()
+    parser.setContentHandler(handler)
+    parser.parse(filename)
+    return handler.subcats
 
 
 def info_restaurante(filename, name):
@@ -76,3 +120,7 @@ def busqueda_cercania(filename, lugar, n):
 
 lista = nombres_restaurantes("Practica_3/restaurantes_v1_es_pretty.xml")
 print(lista)
+
+subs = subcategorias("restaurantes_v1_es_pretty.xml")
+    for s in sorted(subs):
+        print(s)
