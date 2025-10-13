@@ -106,7 +106,7 @@ class SubcategoriaHandler(xml.sax.ContentHandler):
 
 def subcategorias(filename):
     """
-    Devuelve un conjunto con todas las subcategorías del XML en formato 'Categoria > SubCategoria'.
+    Devuelve un conjunto con todas las subcategorías del XML en el formato 'Categoria > SubCategoria'.
     """
     handler = SubcategoriaHandler()
     parser = xml.sax.make_parser()
