@@ -114,17 +114,67 @@ def subcategorias(filename):
     parser.parse(filename)
     return handler.subcats
 
+from xml.etree import ElementTree as ET
+from pathlib import Path
+import html
 
 def info_restaurante(filename, name):
-    ...
+    path = Path(filename).expanduser().resolve()
+    tree = ET.parse(str(path))
+    root = tree.getroot()
+
+    # función limpiar 
+    def limpiar(txt):
+        if txt is None:
+            return None
+        txt = txt.strip()
+        return html.unescape(txt) if txt else None
+
+    # buscar name 
+    for service in root.findall(".//service"):
+        nombre_xml = service.findtext("basicData/name")
+        if nombre_xml == name:
+            #extraer campos básicos 
+            descripcion = service.findtext("basicData/body")
+            email       = service.findtext("basicData/email")
+            web         = service.findtext("basicData/web")
+            phone       = service.findtext("basicData/phone")
+
+            #extraer el horario
+            horario = None
+            extra = service.find("extradata")
+            if extra is not None:
+                for it in extra.findall("item"):
+                    candidato = limpiar(it.text)
+                    if candidato:    # nos quedamos con el primero que no esté vacío
+                        horario = candidato
+                        break
+
+            #montar y devolver el diccionario 
+            return {
+                "nombre":      limpiar(nombre_xml),
+                "descripcion": limpiar(descripcion),
+                "email":       limpiar(email),
+                "web":         limpiar(web),
+                "phone":       limpiar(phone),
+                "horario":     limpiar(horario),
+            }
+
+    #si no se encontró ningún restaurante con ese nombre
+    return None
+
 
 
 def busqueda_cercania(filename, lugar, n):
     ...
 
+
 lista = nombres_restaurantes("Practica_3/restaurantes_v1_es_pretty.xml")
 print(lista)
 
+
 subs = subcategorias("restaurantes_v1_es_pretty.xml")
-    for s in sorted(subs):
-        print(s)
+for s in sorted(subs):
+    print(s)
+
+
