@@ -13,6 +13,7 @@ de manera directa o indirecta. Declaramos además que no hemos realizado de mane
 deshonesta ninguna otra actividad que pueda mejorar nuestros resultados ni perjudicar los
 resultados de los demás.
 """
+
 import sqlite3
 import csv
 from datetime import datetime
@@ -79,7 +80,19 @@ def cargar_bd(db_filename, tab_datos, tab_ibex35):
 
 
 def consulta1(db_filename, indice):
-    ...
+    con = sqlite3.connect(db_filename)
+    cur = con.cursor()
+
+    cur.execute('''
+        SELECT ticker, nombre
+        FROM datos_generales
+        WHERE indice LIKE ?
+        ORDER BY ticker ASC
+        ''', (indice,)
+    )    
+    sol = cur.fetchall()
+    con.close()
+    return sol
 
 
 def consulta2(db_filename):
@@ -92,3 +105,12 @@ def consulta3(db_filename, limite):
 
 def consulta4(db_filename, ticker):
     ...
+
+
+crear_bd('bolsa.sqlite3')
+cargar_bd(
+    'bolsa.sqlite3',
+    'D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_4/Tabla1.csv',
+    'D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_4/Tabla2.csv'
+)
+print(consulta1('bolsa.sqlite3', "Nasdaq 100"))
