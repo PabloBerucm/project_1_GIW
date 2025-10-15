@@ -96,7 +96,28 @@ def consulta1(db_filename, indice):
 
 
 def consulta2(db_filename):
-    ...
+    """
+    Devuelve una lista de tuplas (ticker, nombre, precio_maximo) para cada valor
+    del IBEX35 segun la tabla historica 'semanales_IBEX35', ordenada por nombre asc.
+    """
+
+    con = sqlite3.connect(db_filename)  #abrimos conexion a la BD
+    cur = con.cursor() #obtenemos cursor para ejecutar sentencias SQL 
+
+    #construimos la consulta 
+    consulta = """
+        SELECT dg.ticker, dg.nombre, MAX(s.precio) AS precio_maximo
+        FROM datos_generales AS dg
+        JOIN semanales_IBEX35 AS s
+          ON s.ticker = dg.ticker
+        GROUP BY dg.ticker, dg.nombre
+        ORDER BY dg.nombre ASC
+    """
+
+    cur.execute(consulta) #ejecutamos la consulta 
+    resultado = cur.fetchall() #recuperamos todas las filas del resultado como lista de tuplas 
+    con.close() #cerramos conexión 
+    return resultado 
 
 
 def consulta3(db_filename, limite):
@@ -114,3 +135,5 @@ cargar_bd(
     'D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_4/Tabla2.csv'
 )
 print(consulta1('bolsa.sqlite3', "Nasdaq 100"))
+
+print(consulta2("bolsa.sqlite3"))
