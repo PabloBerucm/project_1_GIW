@@ -164,9 +164,64 @@ def info_restaurante(filename, name):
     return None
 
 
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+from xml.etree import ElementTree as ET
+from pathlib import Path
+import html
+
 
 def busqueda_cercania(filename, lugar, n):
-    ...
+    """
+    Devuelve una lista de tuplas (distancia, nombre_restaurante) ordenada por distancia creciente
+    con los restaurantes a <= n km del lugar indicado.
+    """
+    path = Path(filename).expanduser().resolve()
+    tree = ET.parse(str(path))
+    root = tree.getroot()
+
+    # función limpiar 
+    def limpiar(txt):
+        if txt is None:
+            return None
+        txt = txt.strip()
+        return html.unescape(txt) if txt else None
+
+    # geocodificar el lugar
+    geolocator = Nominatim(user_agent="giw_practica")
+    location = geolocator.geocode(lugar)
+    if location is None:
+        return []
+    origin = (location.latitude, location.longitude)
+
+    # buscar restaurantes y calcular distancias
+    restaurantes = []
+    for service in root.findall(".//service"):
+        nombre_elem = service.find("basicData/name")
+        if nombre_elem is None or nombre_elem.text is None:
+            continue
+        nombre = limpiar(nombre_elem.text)
+        if not nombre:
+            continue
+
+        lat_elem = service.find("geoData/latitude")
+        lon_elem = service.find("geoData/longitude")
+        if lat_elem is None or lon_elem is None:
+            continue
+
+        try:
+            lat = float(lat_elem.text)
+            lon = float(lon_elem.text)
+        except ValueError:
+            continue
+
+        dest = (lat, lon)
+        dist = geodesic(origin, dest).km
+        if dist <= n:
+            restaurantes.append((dist, nombre))
+
+    # ordenar por distancia
+    return sorted(restaurantes)
 
 
 lista = nombres_restaurantes("Practica_3/restaurantes_v1_es_pretty.xml")
@@ -176,5 +231,3 @@ print(lista)
 subs = subcategorias("restaurantes_v1_es_pretty.xml")
 for s in sorted(subs):
     print(s)
-
-
