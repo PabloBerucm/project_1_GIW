@@ -71,14 +71,14 @@ def cargar_bd(db_filename, tab_datos, tab_ibex35):
 
     # Cargar datos_generales
     with open(tab_datos, "r", encoding="utf-8") as f:
-        lector = csv.DictReader(f)
+        lector = csv.DictReader(f, delimiter=';')
         for fila in lector:
             cur.execute("INSERT INTO datos_generales VALUES (?, ?, ?, ?)",
                         (fila["ticker"], fila["nombre"], fila["indice"], fila["pais"]))
 
     # Cargar semanales_IBEX35
     with open(tab_ibex35, "r", encoding="utf-8") as f:
-        lector = csv.DictReader(f)
+        lector = csv.DictReader(f, delimiter=';')
         for fila in lector:
             # Cambiar formato de fecha de DD/MM/YYYY HH:MM a YYYY-MM-DD HH:MM
             fecha_original = fila["fecha"]
