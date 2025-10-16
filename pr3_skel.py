@@ -19,7 +19,11 @@ resultados de los demás.
 """
 
 import xml.sax
+from xml.etree import ElementTree as ET
+from pathlib import Path
 import html
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
 
 class ManejoRestaurantes(xml.sax.ContentHandler):
     """
@@ -28,48 +32,54 @@ class ManejoRestaurantes(xml.sax.ContentHandler):
     coger el nombre y un conjunto nombres donde iremos guardando los nombres de restaurantes
     """
     def __init__(self):
+        super().__init__()
         self.texto = ""
         self.en_name = False
         self.nombres = set()
 
     def startElement(self, name, attrs):
-        #cuando detecta la etiqueta element se pone en true nuestro en_name
+        # cuando detecta la etiqueta element se pone en true nuestro en_name
         if name == "name":
             self.en_name = True
-        #borramos lo que hubiese leído en el registro para coger solo el nombre
+        # borramos lo que hubiese leído en el registro para coger solo el nombre
         self.texto = ""
 
     def characters(self, content):
-        #cuando está leyendo el contenido de la etiqueta y nos encontramos en en_name, y lo guardamos en el texto
+        # cuando está leyendo el contenido de la etiqueta y nos encontramos en en_name,
+        # y lo guardamos en el texto
         if self.en_name:
             self.texto += content
 
     def endElement(self, name):
-        #cuando terminamos de ver un elemento si la etiqueta era name:
+        # cuando terminamos de ver un elemento si la etiqueta era name:
         if name == "name":
-            #usamos el html.unescape() por el texto escapado html y el strip para eliminar espacios al principio y al final
+            # usamos el html.unescape() por el texto escapado html y el strip para
+            # eliminar espacios al principio y al final
             nombre = html.unescape(self.texto.strip())
-            #si existe el nombre lo añadimos a nuestro conjunto
+            # si existe el nombre lo añadimos a nuestro conjunto
             if nombre:
                 self.nombres.add(nombre)
-            #y como terminamos la etiqueta de name ponemos la flag a False
+            # y como terminamos la etiqueta de name ponemos la flag a False
             self.en_name = False
 
 
-
-
-
 def nombres_restaurantes(filename):
+    """
+    Devuelve una lista ordenada alfabéticamente con los nombres de los restaurantes
+    del fichero XML especificado.
+    """
     h = ManejoRestaurantes()
     parser = xml.sax.make_parser()
     parser.setContentHandler(h)
     parser.parse(filename)
-    #usamos el método sorted para transformar el conjunto en una lista ordenada
+    # usamos el método sorted para transformar el conjunto en una lista ordenada
     return sorted(h.nombres)
 
 
 class SubcategoriaHandler(xml.sax.ContentHandler):
-
+    """
+    Clase para manejar la extracción de subcategorías del fichero XML.
+    """
     def __init__(self):
         super().__init__()
         self.current_categoria = None
@@ -99,7 +109,6 @@ class SubcategoriaHandler(xml.sax.ContentHandler):
                 self.subcats.add(cadena)
             self.en_item = False
             self.attr_name = None
-
         elif name == "categoria":
             self.current_categoria = None
 
@@ -114,61 +123,55 @@ def subcategorias(filename):
     parser.parse(filename)
     return handler.subcats
 
-from xml.etree import ElementTree as ET
-from pathlib import Path
-import html
 
 def info_restaurante(filename, name):
+    """
+    Devuelve un diccionario con la información básica de un restaurante dado su nombre,
+    o None si no se encuentra.
+    """
     path = Path(filename).expanduser().resolve()
     tree = ET.parse(str(path))
     root = tree.getroot()
 
-    # función limpiar 
+    # función limpiar
     def limpiar(txt):
         if txt is None:
             return None
         txt = txt.strip()
         return html.unescape(txt) if txt else None
 
-    # buscar name 
+    # buscar name
     for service in root.findall(".//service"):
         nombre_xml = service.findtext("basicData/name")
         if nombre_xml == name:
-            #extraer campos básicos 
+            # extraer campos básicos
             descripcion = service.findtext("basicData/body")
-            email       = service.findtext("basicData/email")
-            web         = service.findtext("basicData/web")
-            phone       = service.findtext("basicData/phone")
+            email = service.findtext("basicData/email")
+            web = service.findtext("basicData/web")
+            phone = service.findtext("basicData/phone")
 
-            #extraer el horario
+            # extraer el horario
             horario = None
             extra = service.find("extradata")
             if extra is not None:
                 for it in extra.findall("item"):
                     candidato = limpiar(it.text)
-                    if candidato:    # nos quedamos con el primero que no esté vacío
+                    if candidato:  # nos quedamos con el primero que no esté vacío
                         horario = candidato
                         break
 
-            #montar y devolver el diccionario 
+            # montar y devolver el diccionario
             return {
-                "nombre":      limpiar(nombre_xml),
+                "nombre": limpiar(nombre_xml),
                 "descripcion": limpiar(descripcion),
-                "email":       limpiar(email),
-                "web":         limpiar(web),
-                "phone":       limpiar(phone),
-                "horario":     limpiar(horario),
+                "email": limpiar(email),
+                "web": limpiar(web),
+                "phone": limpiar(phone),
+                "horario": limpiar(horario),
             }
 
-    #si no se encontró ningún restaurante con ese nombre
+    # si no se encontró ningún restaurante con ese nombre
     return None
-
-
-from geopy.geocoders import Nominatim
-from geopy.distance import geodesic
-from xml.etree import ElementTree as ET
-from pathlib import Path
-import html
 
 
 def busqueda_cercania(filename, lugar, n):
@@ -180,7 +183,7 @@ def busqueda_cercania(filename, lugar, n):
     tree = ET.parse(str(path))
     root = tree.getroot()
 
-    # función limpiar 
+    # función limpiar
     def limpiar(txt):
         if txt is None:
             return None
@@ -226,7 +229,6 @@ def busqueda_cercania(filename, lugar, n):
 
 lista = nombres_restaurantes("Practica_3/restaurantes_v1_es_pretty.xml")
 print(lista)
-
 
 subs = subcategorias("restaurantes_v1_es_pretty.xml")
 for s in sorted(subs):
