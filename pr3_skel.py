@@ -225,11 +225,3 @@ def busqueda_cercania(filename, lugar, n):
 
     # ordenar por distancia
     return sorted(restaurantes)
-
-
-lista = nombres_restaurantes("Practica_3/restaurantes_v1_es_pretty.xml")
-print(lista)
-
-subs = subcategorias("restaurantes_v1_es_pretty.xml")
-for s in sorted(subs):
-    print(s)
