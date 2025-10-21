@@ -15,23 +15,69 @@ resultados de los demás.
 """
 
 
+import requests
+
+BASE_URL = "https://gorest.co.in/public/v2"
+
 
 def inserta_usuarios(datos, token):
-    """ Inserta todos los usuarios de la lista y devuelve el número de inserciones correctas """
-    ...
+    """
+    Inserta todos los usuarios de la lista y devuelve el número de inserciones correctas.
+    Si un usuario no se puede insertar (por ejemplo, email duplicado), se continúa con los demás.
+    """
+    headers = {"Authorization": f"Bearer {token}"}
+    correctos = 0
+
+    for usuario in datos:
+        try:
+            r = requests.post(f"{BASE_URL}/users", headers=headers, json=usuario)
+            if r.status_code == 201:
+                correctos += 1
+            # Si el error es por duplicado o cualquier otro, lo ignoramos y seguimos
+        except requests.RequestException:
+            continue  # Error de red o similar, ignoramos
+
+    return correctos
 
 
 def get_ident_email(email, token):
-    """ Devuelve el identificador del usuario cuyo email sea *exactamente* el pasado como parámetro.
-        En caso de que ese usuario no exista devuelve None """
-    ...
+    """
+    Devuelve el identificador del usuario cuyo email sea exactamente el pasado como parámetro.
+    En caso de que ese usuario no exista devuelve None.
+    """
+    headers = {"Authorization": f"Bearer {token}"}
+    params = {"email": email}
+    try:
+        r = requests.get(f"{BASE_URL}/users", headers=headers, params=params)
+        if r.status_code != 200:
+            return None
+
+        usuarios = r.json()
+        # La API devuelve coincidencias parciales, así que filtramos por igualdad exacta
+        for u in usuarios:
+            if u.get("email") == email:
+                return u.get("id")
+    except requests.RequestException:
+        return None
+
+    return None
 
 
 def borra_usuario(email, token):
-    """ Elimina el usuario cuyo email sea *exactamente* el pasado como parámetro. En caso de éxito en el
-        borrado devuelve True. Si no existe tal usuario devolverá False """
-    ...
+    """
+    Elimina el usuario cuyo email sea exactamente el pasado como parámetro.
+    En caso de éxito devuelve True. Si no existe tal usuario devolverá False.
+    """
+    user_id = get_ident_email(email, token)
+    if user_id is None:
+        return False
 
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
+        r = requests.delete(f"{BASE_URL}/users/{user_id}", headers=headers)
+        return r.status_code == 204
+    except requests.RequestException:
+        return False
 
 def inserta_todo(email, token, title, due_on, status='pending'):
     """ Inserta un nuevo ToDo para el usuario con email exactamente igual al pasado. Si el ToDo ha sido insertado
