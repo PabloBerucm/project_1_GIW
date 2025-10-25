@@ -182,14 +182,3 @@ def consulta4(db_filename, ticker):
     resultado = cur.fetchall() #recuperamos todas las filas del resultado como lista de tuplas
     con.close() #cerramos conexión
     return resultado
-
-
-crear_bd('bolsa.sqlite3')
-cargar_bd(
-    'bolsa.sqlite3',
-    'D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_4/Tabla1.csv',
-    'D:/AA_DatosUsb/AA_SegundoUSB/GIW/Practica_4/Tabla2.csv'
-)
-print(consulta1('bolsa.sqlite3', "Nasdaq 100"))
-
-print(consulta2("bolsa.sqlite3"))
