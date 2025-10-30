@@ -3,8 +3,12 @@ TODO: rellenar
 
 Asignatura: GIW
 Práctica 6
-Grupo: XXXXXXX
-Autores: XXXXXX 
+Grupo: 3
+Autores: Pablo Bernal Calleja
+         Fernando Guzmán Muñoz
+         Álvaro González-Barros Medina
+         Guillermo Guzmán González Ortíz
+         Nicolás López-Chaves Pérez
 
 Declaramos que esta solución es fruto exclusivamente de nuestro trabajo personal. No hemos
 sido ayudados por ninguna otra persona o sistema automático ni hemos obtenido la solución
@@ -16,6 +20,10 @@ resultados de los demás.
 
 
 import requests
+#para mostrar la salida
+from pprint import pprint, pp
+#para obtener la hora actual (función todos_no_cumplidos)
+from datetime import datetime
 
 BASE_URL = "https://gorest.co.in/public/v2"
 
@@ -82,13 +90,49 @@ def borra_usuario(email, token):
 def inserta_todo(email, token, title, due_on, status='pending'):
     """ Inserta un nuevo ToDo para el usuario con email exactamente igual al pasado. Si el ToDo ha sido insertado
         con éxito devolverá True, en otro caso devolverá False """
-    ...
+    
+    #obtenemos el id del usuario
+    user_id = get_ident_email(email, token)
+    if user_id is None:
+        return False
+    
+    #preparamos cabecera y datos para hacer la petición
+    cabecera = {"Authorization": f"Bearer {token}"}
+    todo_data = {
+        "title": title,
+        "due_on": due_on,
+        "status": status
+    }
+
+    try:
+        r = requests.post(f"{BASE_URL}/users/{user_id}/todos", headers=cabecera, json=todo_data)
+        return r.status_code == 201
+    except requests.RequestException:
+        return False
 
 
 def todos_usuario(email, token):
+
     """ Devuelve una lista de diccionarios con todos los ToDo asociados al usuario con el email pasado como
         parámetro """
-    ...
+    #obtenemos el id del usuario
+    user_id = get_ident_email(email, token)
+    if user_id is None:
+        return []
+    
+    #preparamos cabecera
+    cabecera = {"Authorization": f"Bearer {token}"}
+
+    try:
+        r = requests.get(f"{BASE_URL}/users/{user_id}/todos", headers=cabecera)
+        if r.status_code != 200:
+            return[]
+        return r.json()
+    except requests.RequestException:
+        return []
+
+    
+
 
 
 def todos_no_cumplidos(email, token):
@@ -96,5 +140,37 @@ def todos_no_cumplidos(email, token):
         parámetro que están pendientes (status=pending) y cuya fecha tope (due_on) es anterior a la fecha
         y hora actual. Para comparar las fechas solo hay que tener en cuenta el dia, la hora y los minutos; es
         decir, ignorar los segundos, microsegundos y el uso horario """
-    ...
+    
+    #primero obtenemos las tareas del usuario usando la función creada anteriormente
+    tareas = todos_usuario(email, token)
+    if not tareas:
+        return[]
+    
+    #obtenemos la fecha actual, sin tener en cuenta los segundos y microsegundos
+    hora_actual = datetime.now().replace(second=0, microsecond=0)
 
+    #creamos un contenedor donde iremos metiendo las tareas que cumplen los requisitos
+    tareas_devueltas = []
+    #recorremos todas las tareas viendo cuáles cumplen con los requisitos
+    for t in tareas:
+        
+        if t.get("status") != "pending":
+            continue
+
+        hora_tarea = t.get("due_on")
+        if not hora_tarea:
+            continue
+
+        #puede que la hora contenga zona horaria, la eliminamos
+        hora_tarea = hora_tarea.split("+")[0].split("Z")[0]
+
+        #intentamos cambiarlo de formato usando el datetime para igualarlo con nuestro formato de fecha actual
+        try:
+            hora_tarea =datetime.fromisoformat(hora_tarea).replace(second=0,microsecond=0)
+        except ValueError:
+            continue
+
+        if hora_tarea < hora_actual:
+            tareas_devueltas.append(t)
+
+    return tareas_devueltas
